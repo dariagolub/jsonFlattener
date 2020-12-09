@@ -1,17 +1,27 @@
 package main
 
-import "./utils"
+import (
+	"./utils"
+	"log"
+	"os"
+)
 
 func main() {
 
-	var inputJSON = utils.UnmarshalJSON(utils.ReadStdin())
+	rawData, err := utils.ReadUntilEmptyString(os.Stdin)
+	if err != nil {
+		log.Fatalf("Json input is not correct. Error: %s" , err)
+	}
+	//log.Fatalf("Json input is not correct. Error: %s" , err) //todo
+
+	inputJSON, _ := utils.UnmarshalJSON(rawData)
 
 	const keyDelimiter = "."
 
 	var leftKey = ""
 	var flattenedJSON = make(map[string]interface{})
 
-	utils.FlattenKeyValues(inputJSON, &flattenedJSON, leftKey, keyDelimiter)
+	_ = utils.FlattenKeyValues(inputJSON, &flattenedJSON, leftKey, keyDelimiter)
 
 	utils.WriteJSON(flattenedJSON)
 

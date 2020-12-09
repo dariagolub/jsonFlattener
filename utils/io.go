@@ -3,30 +3,30 @@ package utils
 import (
 	"bufio"
 	"fmt"
-	"os"
+	"io"
 	"strings"
 )
 
-// ReadStdin reads input from stdin
-func ReadStdin() string {
-	reader := bufio.NewReader(os.Stdin)
+// ReadUntilEmptyString reads input from stdin
+func ReadUntilEmptyString(buffer io.Reader) (string, error) {
+	reader := bufio.NewReader(buffer)
 
 	var stringBuilder strings.Builder
 
 	for {
-		line, _ := reader.ReadString('\n')
-
-		if len(line) == 0 {
-			break
-		}
+		line, err := reader.ReadString('\n')
 
 		stringBuilder.WriteString(line)
+
+		if err == io.EOF {
+			break
+		}
 
 	}
 
 	rawData := stringBuilder.String()
 
-	return rawData
+	return rawData, nil
 }
 
 // WriteJSON to write map with JSON key-values to standard output
