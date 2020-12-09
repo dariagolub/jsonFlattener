@@ -17,6 +17,15 @@ func UnmarshalJSON(rawData string) (map[string]interface{}, error) {
 	return inputJSON, nil
 }
 
+// MarshalJSON converts map to JSON string
+func MarshalJSON(jsonData map[string]interface{}) (string, error) {
+	json, err := json.Marshal(jsonData)
+	if err != nil {
+		return "", err
+	}
+	return string(json), nil
+}
+
 // FlattenKeyValues to flatten key-values pairs
 // It's a recursive function to iterate through keys and flatten key-value pairs if value represents a nested structure
 func FlattenKeyValues(inputJSON map[string]interface{}, flattened *map[string]interface{}, leftKey string, keyDelimiter string) error {

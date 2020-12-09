@@ -26,6 +26,23 @@ func TestUnmarshalJsonError(t *testing.T) {
 	}
 }
 
+func TestMarshalJSON(t *testing.T) {
+	jsonData := map[string]interface{}{
+		"a": 1,
+	}
+
+	actual, err := MarshalJSON(jsonData)
+
+	expected := "{\"a\":1}"
+
+	if err != nil {
+		t.Error("Error is expected")
+	}
+	if expected != actual {
+		t.Errorf("Expected: %s, Actual: %s", expected, actual)
+	}
+}
+
 func TestFlattenJsonCorrect(t *testing.T) {
 	jsonData := map[string]interface{}{
 		"a": 1,

@@ -2,13 +2,12 @@ package utils
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"strings"
 )
 
-// ReadUntilEmptyString reads input from stdin
-func ReadUntilEmptyString(buffer io.Reader) (string, error) {
+// ReadUntilEOF reads input from stdin
+func ReadUntilEOF(buffer io.Reader) (string, error) {
 	reader := bufio.NewReader(buffer)
 
 	var stringBuilder strings.Builder
@@ -20,6 +19,8 @@ func ReadUntilEmptyString(buffer io.Reader) (string, error) {
 
 		if err == io.EOF {
 			break
+		} else if err != nil {
+			return "", err
 		}
 
 	}
@@ -27,11 +28,4 @@ func ReadUntilEmptyString(buffer io.Reader) (string, error) {
 	rawData := stringBuilder.String()
 
 	return rawData, nil
-}
-
-// WriteJSON to write map with JSON key-values to standard output
-func WriteJSON(flattenedJSON map[string]interface{}) {
-	for key, value := range flattenedJSON {
-		fmt.Printf("%v:%v\n", key, value)
-	}
 }

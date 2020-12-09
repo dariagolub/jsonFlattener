@@ -2,27 +2,51 @@ package main
 
 import (
 	"./utils"
+	"fmt"
+	"io"
 	"log"
 	"os"
 )
 
+const keyDelimiter = "."
+
 func main() {
-
-	rawData, err := utils.ReadUntilEmptyString(os.Stdin)
+	err := Process(os.Stdin, os.Stdout)
 	if err != nil {
-		log.Fatalf("Json input is not correct. Error: %s" , err)
+		log.Fatal(err)
 	}
-	//log.Fatalf("Json input is not correct. Error: %s" , err) //todo
 
-	inputJSON, _ := utils.UnmarshalJSON(rawData)
+}
 
-	const keyDelimiter = "."
+// Process takes input json data and writes flattened json to output
+func Process(input io.Reader, output io.Writer) error {
+	rawData, err := utils.ReadUntilEOF(input)
+	if err != nil {
+		return err
+	}
+
+	inputJSON, err := utils.UnmarshalJSON(rawData)
+	if err != nil {
+		return err
+	}
 
 	var leftKey = ""
 	var flattenedJSON = make(map[string]interface{})
 
-	_ = utils.FlattenKeyValues(inputJSON, &flattenedJSON, leftKey, keyDelimiter)
+	err = utils.FlattenKeyValues(inputJSON, &flattenedJSON, leftKey, keyDelimiter)
+	if err != nil {
+		return err
+	}
 
-	utils.WriteJSON(flattenedJSON)
+	result, err := utils.MarshalJSON(flattenedJSON)
+	if err != nil {
+		return err
+	}
 
+	_, err = fmt.Fprintf(output, "%s\n", result)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
