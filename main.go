@@ -1,57 +1,57 @@
 package main
 
 import (
-	"bufio"
+	"./ioutils"
 	"encoding/json"
-	"fmt"
-	"os"
-	"strings"
+	"log"
 )
 
 func main() {
-	reader := bufio.NewReader(os.Stdin)
 
-	var stringBuilder strings.Builder
+	var inputJson = UnmarshalJson(ioutils.ReadStdin())
 
-	for {
-		line, _ := reader.ReadString('\n')
-
-		if len(line) == 0 {
-			break
-		}
-
-		stringBuilder.WriteString(line)
-
-	}
-
-	rawData := []byte(stringBuilder.String())
-
-	var inputJson map[string]interface{}
-	err := json.Unmarshal(rawData, &inputJson)
-	
-	if err != nil {
-		panic(err) //todo
-	}
+	const keyDelimiter = "."
 
 	var leftKey = ""
-	keyDelimiter := "."
 	var flattenedJson = make(map[string]interface{})
 
-	flattenJson(inputJson, &flattenedJson, leftKey, keyDelimiter)
-	for key, value := range flattenedJson {
-		fmt.Printf("%v:%v\n", key, value)
-	}
+	FlattenJson(inputJson, &flattenedJson, leftKey, keyDelimiter)
+
+	ioutils.WriteJson(flattenedJson)
 
 }
 
-func flattenJson(inputJSON map[string]interface{}, flattened *map[string]interface{}, leftKey string, keyDelimiter string) {
+func UnmarshalJson(rawData string) map[string]interface{} {
+	var inputJson map[string]interface{}
+	err := json.Unmarshal([]byte(rawData), &inputJson)
+
+	if err != nil {
+		log.Fatalf("Json input is not correct. Error: %s" , err) //todo
+	}
+
+	return inputJson
+}
+
+func FlattenJson(inputJSON map[string]interface{}, flattened *map[string]interface{}, leftKey string, keyDelimiter string) {
 	for key, value := range inputJSON {
 		key := leftKey + key
 
-		if _, ok := value.(map[string]interface{}); ok {
-			flattenJson(value.(map[string]interface{}), flattened, key+keyDelimiter, keyDelimiter)
+		if ok := isTypeArray(value); ok {
+			log.Fatalf("Flattening json with array is not supported. Wrong key: %v with value: %v", key, value) //todo
+		} else if ok := isTypeInnerJson(value); ok {
+			FlattenJson(value.(map[string]interface{}), flattened, key+keyDelimiter, keyDelimiter)
 		} else {
 			(*flattened)[key] = value
 		}
 	}
+}
+
+func isTypeArray(value interface{}) bool {
+	_, ok := value.([]interface{})
+	return ok
+}
+
+func isTypeInnerJson(value interface{}) bool {
+	_, ok := value.(map[string]interface{})
+	return ok
 }
