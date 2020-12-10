@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// ReadUntilEOF reads input from stdin
+// ReadUntilEOF reads input from the io.Reader
 func ReadUntilEOF(buffer io.Reader) (string, error) {
 	reader := bufio.NewReader(buffer)
 
